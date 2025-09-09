@@ -62,11 +62,11 @@ export class ProductsController {
 
   @Patch(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateProductDto: UpdateProductDto
   ){
 
-    return this.productsClient.send({ cmd: 'update' }, updateProductDto).pipe(
+    return this.productsClient.send({ cmd: 'update' }, {id, ...updateProductDto}).pipe(
       catchError(err => {throw new RpcException(err)})
     ); 
     
@@ -74,16 +74,9 @@ export class ProductsController {
 
   @Delete(':id')
   async delete(@Param('id') id: string){
-    try {
-      const product = await firstValueFrom(
-        this.productsClient.send({ cmd: 'delete' }, { id })
-      );
 
-      return product;
-      
-    } catch (error) {
-      throw new RpcException(error)
-    }
-    
+    return this.productsClient.send({ cmd: 'delete' }, { id }).pipe(
+      catchError(err => {throw new RpcException(err)})
+    );    
   }
 }
