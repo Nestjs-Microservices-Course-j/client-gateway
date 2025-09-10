@@ -1,11 +1,6 @@
 import { Catch, ArgumentsHost, ExceptionFilter } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 
-interface RcpError {
-    status: number;
-    message: string;
-}
-
 @Catch(RpcException)
 export class RpcCustomExceptionFilter implements ExceptionFilter {
   catch(exception: RpcException, host: ArgumentsHost) {
@@ -16,7 +11,7 @@ export class RpcCustomExceptionFilter implements ExceptionFilter {
 
     if( typeof rcpError === 'object' && 'status' in rcpError && 'message' in rcpError) {
         const status  = isNaN(+rcpError.status) ? 400 : +rcpError.status
-        res.status(status).json(rcpError)  
+        return res.status(status).json(rcpError)  
     }
 
      res.status(400).json({

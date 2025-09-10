@@ -18,7 +18,7 @@ async function bootstrap() {
     })
   );
 
-  //* configurando los fitltros de exceciones globales de nuestra clase personalizada
+  //* configurando los filtros de exceciones globales de nuestra clase personalizada
   //* con esto todas las peticiones seran primero filtradas para verificar si no tiene error
   //* y detectara todas las exceptiones donde se utilice el RpcException
   app.useGlobalFilters( new RpcCustomExceptionFilter())
