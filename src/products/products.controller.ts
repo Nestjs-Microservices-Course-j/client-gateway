@@ -2,7 +2,7 @@ import { BadRequestException, Body, Controller, Delete, Get, Inject, Param, Pars
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError, first, firstValueFrom } from 'rxjs';
 import { PaginationDto } from 'src/common';
-import { PRODUCT_SERVICE } from 'src/config';
+import { NATS_SERVICE, PRODUCT_SERVICE } from 'src/config';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 
@@ -11,8 +11,8 @@ export class ProductsController {
 
   constructor(
     //*injectando el inyection token del microservicio products
-    @Inject(PRODUCT_SERVICE)
-    private readonly productsClient: ClientProxy
+    @Inject(NATS_SERVICE)
+    private readonly natsClient: ClientProxy
   ) {}
 
   @Post()
@@ -21,7 +21,7 @@ export class ProductsController {
   ){
     try {
       const product = await firstValueFrom(
-        this.productsClient.send({ cmd: 'create' }, createProductDto)
+        this.natsClient.send({ cmd: 'create' }, createProductDto)
       );
 
       return product;
@@ -41,7 +41,7 @@ export class ProductsController {
     //return this.productsClient.send({ cmd: 'find_all' }, paginationDto); 
 
     //*otra manera de acerlo
-    return this.productsClient.send({ cmd: 'find_all' }, paginationDto).pipe(
+    return this.natsClient.send({ cmd: 'find_all' }, paginationDto).pipe(
       catchError(err => {throw new RpcException(err)})
     ); 
   }
@@ -50,7 +50,7 @@ export class ProductsController {
   async findOne(@Param('id', ParseIntPipe) id: number ) {
     try {
       const product = await firstValueFrom(
-        this.productsClient.send({ cmd: 'find_one' }, { id })
+        this.natsClient.send({ cmd: 'find_one' }, { id })
       );
 
       return product;
@@ -66,7 +66,7 @@ export class ProductsController {
     @Body() updateProductDto: UpdateProductDto
   ){
 
-    return this.productsClient.send({ cmd: 'update' }, {id, ...updateProductDto}).pipe(
+    return this.natsClient.send({ cmd: 'update' }, {id, ...updateProductDto}).pipe(
       catchError(err => {throw new RpcException(err)})
     ); 
     
@@ -75,7 +75,7 @@ export class ProductsController {
   @Delete(':id')
   async delete(@Param('id') id: string){
 
-    return this.productsClient.send({ cmd: 'delete' }, { id }).pipe(
+    return this.natsClient.send({ cmd: 'delete' }, { id }).pipe(
       catchError(err => {throw new RpcException(err)})
     );    
   }
