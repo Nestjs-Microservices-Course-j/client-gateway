@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body,  Param, Inject, Query, ParseUUIDPipe, ParseEnumPipe, UnprocessableEntityException, Patch } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { catchError } from 'rxjs';
+import { catchError, firstValueFrom } from 'rxjs';
 
 import { ChangeStatusDto, CreateOrderDto, OrderPaginationDto } from './dto';
 import { PaginationDto } from 'src/common';
@@ -46,10 +46,17 @@ export class OrdersController {
   }
 
   @Get()
-  findAll(
+  async findAll(
     @Query() paginationDto: OrderPaginationDto
   ) {
-    return this.natsClient.send('findAllOrders', paginationDto );
+    try {
+      const orders = await firstValueFrom(
+         this.natsClient.send('findAllOrders', paginationDto )
+      );
+      return orders;
+    } catch (error) {
+       throw new RpcException(error);
+    }
   }
 
   @Patch(':id')
