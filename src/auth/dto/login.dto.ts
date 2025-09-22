@@ -6,5 +6,6 @@ export class LoginDto {
     email: string;
 
     @IsString()
+    @IsStrongPassword()
     password: string;
 }
