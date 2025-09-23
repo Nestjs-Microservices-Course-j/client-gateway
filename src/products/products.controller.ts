@@ -1,10 +1,11 @@
-import { BadRequestException, Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError, first, firstValueFrom } from 'rxjs';
 import { PaginationDto } from 'src/common';
 import { NATS_SERVICE, PRODUCT_SERVICE } from 'src/config';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateProductDto } from './dto/create-product.dto';
+import { AuthGuard } from 'src/auth/guards/auth.guard.ts/auth.guard';
 
 @Controller('products')
 export class ProductsController {
@@ -31,6 +32,7 @@ export class ProductsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   findAll(
     @Query() paginationDto : PaginationDto

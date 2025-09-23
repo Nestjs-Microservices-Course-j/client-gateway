@@ -1,8 +1,11 @@
-import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Req, UseGuards } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { NATS_SERVICE } from 'src/config';
 import { LoginDto, RegisterDto } from './dto';
 import { catchError } from 'rxjs';
+import { AuthGuard } from './guards/auth.guard.ts/auth.guard';
+import { TokenDecorator, UserDecorator } from './decorators';
+import { CurrentUser } from './interfaces/current-user.interface';
 
 
 
@@ -37,8 +40,13 @@ export class AuthController {
             );
   }
 
+  @UseGuards(AuthGuard)
   @Get('refresh')
-  refresh() {
-    return this.natsClient.send('auth.refresh.user', {});
+  refresh(
+    @UserDecorator() user: CurrentUser,
+    @TokenDecorator() token: string,
+  ) {
+    
+    return { user, token };
   }
 }
