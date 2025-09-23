@@ -24,3 +24,8 @@ Levantar servidor nats con
 ```
 docker run -d --name nats-serve -p 4222:4222 -p 8222:8222 nats
 ```
+
+## Crear versión de producción
+```
+docker build -f dockerfile.prod -t client-gateway . 
+```
